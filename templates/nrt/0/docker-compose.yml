@@ -1,0 +1,349 @@
+zk:
+  tty: true
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/zk-3.4.6:2
+  restart: always
+  volumes:
+   - /usr/local/aeris_lib/zookeeper/:/usr/local/aeris_lib/zookeeper
+  command: bash /usr/local/zookeeper/bin/start-zookeeper.sh ${zk_scale}
+  environment:
+  - JVMFLAGS=-Xmx${zk_mem}m -Xms${zk_mem}m
+Seed:
+  tty: true
+  restart: always
+  ports:
+  - 9042:9042/tcp
+  - 9160:9160/tcp
+  labels: 
+    io.rancher.container.dns: true
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name
+  volumes:
+   - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+   - /usr/local/aeris_lib/cassandra/:/usr/local/aeris_lib/cassandra
+  environment:
+    RANCHER_ENABLE: 'true'
+    CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+    JVMMEM: ${jvmmem}
+    MAX_HEAP_SIZE: ${maxheap}
+    HEAP_NEWSIZE: ${heapsize}
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/cassandra-1.1.6:2
+  command: bash /usr/local/cassandra/apache-cassandra-1.1.6/bin/start-cass-service.sh seed Seed ${seed_scale} ${cassandra_scale}
+Peer:
+  tty: true
+  restart: always
+  ports:
+  - 9042:9042/tcp
+  - 9160:9160/tcp
+  labels: 
+    io.rancher.container.dns: true
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name
+  volumes:
+   - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+  environment:
+    RANCHER_ENABLE: 'true'
+    CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+    JVMMEM: ${jvmmem}
+    MAX_HEAP_SIZE: ${maxheap}
+    HEAP_NEWSIZE: ${heapsize}
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/cassandra-1.1.6:2
+  command: bash /usr/local/cassandra/apache-cassandra-1.1.6/bin/start-cass-service.sh peer Seed ${seed_scale} ${cassandra_scale}
+  links: 
+   - Seed:Seed
+Mancenter-Loader-ETL:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
+  links: 
+   - Seed:Seed
+   - Peer:Peer
+  labels:
+   io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  restart: always
+  volumes:
+   - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+   - /usr/local/aeris_lib/hazelcastETL/:/usr/local/aeris_lib/hazelcastETL
+   - /usr/local/aeris_lib/hazelcastNONETL/:/usr/local/aeris_lib/hazelcastNONETL
+  ports:
+   - 8888:8080
+  command: bash /usr/local/tomcat/bin/start-mancenter-loader.sh "Mancenter-Loader-ETL" "Loader-ETL" ${hz_scale}
+  environment:
+  - JVMFLAGS=-Xmx${hz_heap_size}g
+  - INITOCFRACTION=${hz_init_frac}
+  - MAXHEAPFREERATIO=${hz_max_heap_free}
+  - MINHEAPFREERATIO=${hz_min_heap_free}
+  - CLUSTER_TYPE="ETL"
+  - Cassandra_SERVICE=${Cassandra_link}
+Loader-ETL:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
+  labels:
+   io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  restart: always
+  volumes:
+   - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+   - /usr/local/aeris_lib/hazelcastETL/:/usr/local/aeris_lib/hazelcastETL
+   - /usr/local/aeris_lib/hazelcastNONETL/:/usr/local/aeris_lib/hazelcastNONETL
+  command: bash /usr/local/tomcat/bin/start-loader.sh "Mancenter-Loader-ETL" "Loader-ETL" ${hz_scale}
+  links: 
+   - Mancenter-Loader-ETL:Mancenter-Loader-ETL
+   - Seed:Seed
+   - Peer:Peer
+  labels: 
+    io.rancher.container.dns: true
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name
+  environment:
+  - JVMFLAGS=-Xmx${hz_heap_size}g
+  - INITOCFRACTION=${hz_init_frac}
+  - MAXHEAPFREERATIO=${hz_max_heap_free}
+  - MINHEAPFREERATIO=${hz_min_heap_free}
+  - CLUSTER_TYPE="ETL"
+  - Cassandra_SERVICE=${Cassandra_link}
+Mancenter-Loader-NONETL:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
+  links: 
+   - Seed:Seed
+   - Peer:Peer
+  labels:
+   io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  restart: always
+  volumes:
+   - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+   - /usr/local/aeris_lib/hazelcastETL/:/usr/local/aeris_lib/hazelcastETL
+   - /usr/local/aeris_lib/hazelcastNONETL/:/usr/local/aeris_lib/hazelcastNONETL
+  ports:
+   - 8888:8080
+  command: bash /usr/local/tomcat/bin/start-mancenter-loader.sh "Mancenter-Loader-NONETL" "Loader-NONETL" ${hz_scale}
+  environment:
+  - JVMFLAGS=-Xmx${hz_heap_size}g
+  - INITOCFRACTION=${hz_init_frac}
+  - MAXHEAPFREERATIO=${hz_max_heap_free}
+  - MINHEAPFREERATIO=${hz_min_heap_free}
+  - CLUSTER_TYPE="NONETL"
+  - Cassandra_SERVICE=${Cassandra_link}
+Loader-NONETL:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
+  labels:
+   io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  restart: always
+  volumes:
+   - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+   - /usr/local/aeris_lib/hazelcastETL/:/usr/local/aeris_lib/hazelcastETL
+   - /usr/local/aeris_lib/hazelcastNONETL/:/usr/local/aeris_lib/hazelcastNONETL
+  command: bash /usr/local/tomcat/bin/start-loader.sh "Mancenter-Loader-NONETL" "Loader-NONETL" ${hz_scale}
+  links: 
+   - Mancenter-Loader-NONETL:Mancenter-Loader-NONETL
+   - Seed:Seed
+   - Peer:Peer
+  labels: 
+    io.rancher.container.dns: true
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name
+  environment:
+  - JVMFLAGS=-Xmx${hz_heap_size}g
+  - INITOCFRACTION=${hz_init_frac}
+  - MAXHEAPFREERATIO=${hz_max_heap_free}
+  - MINHEAPFREERATIO=${hz_min_heap_free}
+  - CLUSTER_TYPE="NONETL"
+  - Cassandra_SERVICE=${Cassandra_link}
+rabbit1:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/rmq:2
+  hostname: rabbit1
+  links: 
+   - Mancenter-Loader:Mancenter-Loader
+   - Loader:Loader
+  restart: always
+  labels: 
+    io.rancher.container.dns: true
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name
+  environment:
+   - ERLANG_COOKIE=abcdefg
+  ports:
+   - "5672:5672"
+   - "15672:15672"
+rabbit2:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/rmq:2
+  hostname: rabbit2
+  restart: always
+  labels: 
+    io.rancher.container.dns: true
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name
+  links:
+   - rabbit1
+   - Mancenter-Loader:Mancenter-Loader
+   - Loader:Loader
+  environment:
+   - ERLANG_COOKIE=abcdefg
+   - CLUSTER_WITH=rabbit1
+  ports:
+   - "5673:5672"
+   - "15673:15672"
+broker:
+  tty: true
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/kafka:10.0.0
+  command: bash /usr/local/kafka/bin/kafka-service.sh start
+  links:
+   - zk:zk
+  restart: always
+  volumes_from:
+    - broker-volume
+    - broker-conf
+  environment:
+    - JVMFLAGS=-Xmx${kafka_mem}m -Xms${kafka_mem}m
+    - CONFD_INTERVAL=${kafka_interval}
+    - ZK_SERVICE=${zk_link}
+    - KAFKA_LOG_DIRS=${kafka_log_dir}
+    - KAFKA_LOG_RETENTION_HOURS=${kafka_log_retention}
+    - KAFKA_NUM_PARTITIONS=${kafka_num_partitions}
+    - ADVERTISE_PUB_IP=${kafka_pub_ip}
+  external_links:
+    - ${zk_link}
+  labels: 
+    io.rancher.container.dns: true
+    io.rancher.sidekicks: broker-volume, broker-conf
+    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+  volumes:
+   - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+broker-conf:
+  net: none
+  labels:
+    io.rancher.container.start_once: true
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/kafka:0.10.0.1
+broker-volume:
+  net: none
+  labels:
+    io.rancher.container.start_once: true
+  environment:
+    - SERVICE_USER=kafka
+    - SERVICE_UID=10003
+    - SERVICE_GROUP=kafka 
+    - SERVICE_GID=10003
+    - SERVICE_VOLUME=${kafka_log_dir}
+  volumes:
+    - ${kafka_log_dir}
+  volume_driver: local
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/kafka:0.0.1-1
+ncm:
+   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.0.1
+   command: bash /usr/local/nifi-1.0.0/bin/run.sh ncm
+   links:
+   - zk:zk
+   ports:
+     - 9080:8080
+   environment:
+    - NIFI_UI_BANNER_TEXT=Cluster-Manager
+    - NIFI_INSTANCE_ROLE=cluster-manager
+    - ZK_SERVICE=${zk_link}
+   external_links:
+    - ${zk_link}
+   labels: 
+    io.rancher.container.dns: true
+   volumes:
+    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+worker:
+   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.0.1
+   command: bash /usr/local/nifi-1.0.0/bin/run.sh ncm
+   links:
+   - zk:zk
+   ports:
+    - 9081:8081
+   environment:
+    - NIFI_UI_BANNER_TEXT=Cluster-Node
+    - NIFI_INSTANCE_ROLE=cluster-node
+    - ZK_SERVICE=${zk_link}
+   external_links:
+    - ${zk_link}
+   labels: 
+    io.rancher.container.dns: true
+    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+   volumes:
+    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+   ports:
+     - 10000
+     - 10001
+     - 10002
+     - 10003
+     - 10004
+nimbus:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/storm:nimbus5
+  command: bash /usr/bin/start-supervisor.sh
+  links:
+   - zk:zk
+   - Mancenter-Loader-ETL:Mancenter-Loader-ETL
+   - Loader-ETL:Loader-ETL
+   - Mancenter-Loader-NONETL:Mancenter-Loader-NONETL
+   - Loader-NONETL:Loader-NONETL
+   - broker:broker
+   - rabbit1:rabbit1
+  restart: always
+  labels: 
+    io.rancher.container.dns: true
+  ports:
+    - "49773:3773"
+    - "49772:3772"
+    - "49627:6627"
+    - "22"
+  external_links:
+    - ${zk_link}
+    - ${HazelcastETL_link}
+    - ${HazelcastNONETL_link}
+    - ${Kafka_link}
+    - ${RabbitMq_link}
+  environment:
+    - ZK_SERVICE=${zk_link}
+    - HazelcastETL_SERVICE=${HazelcastETL_link}
+    - HazelcastNONETL_SERVICE=${HazelcastNONETL_link}
+    - Kafka_SERVICE=${Kafka_link}
+    - RabbitMq_SERVICE=${RabbitMq_link}
+  volumes:
+    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+    - /usr/local/aeris_lib/storm/:/usr/local/aeris_lib/storm
+supervisor:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/storm:supervisor1
+  labels: 
+   io.rancher.container.dns: true
+  restart: always
+  command: mkdir -p /var/run/sshd
+  command: bash /usr/bin/start-supervisor.sh nimbus
+  environment:
+   - ZK_SERVICE=${zk_link}
+  ports:
+    - "8000"
+    - "22"
+  links: 
+    - nimbus:nimbus
+  volumes:
+    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+ui:
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/storm:ui1
+  environment:
+    - ZK_SERVICE=${zk_link}
+  command: mkdir -p /var/run/sshd
+  command: bash /usr/bin/start-supervisor.sh nimbus
+  restart: always
+  ports:
+    - "49080:8080"
+    - "22"
+  links: 
+    - nimbus:nimbus
+  external_links:
+    - ${zk_link}
+  volumes:
+    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+  labels: 
+    io.rancher.container.dns: true
+Emitter:
+  labels:
+    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
+    io.rancher.container.hostname_override: container_name
+  links: 
+    - rabbit1:rabbit1
+    - worker:worker
+  command: bash /startup.sh
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/emitter:5
+  volumes:
+    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+    - /usr/local/aeris_lib/emitter/:/usr/local/aeris_lib/emitter
+  environment:
+    - RabbitMq_SERVICE=${RabbitMq_link}
+    - Nifi_SERVICE=${Nifi_link}
