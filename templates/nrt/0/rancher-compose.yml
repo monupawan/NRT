@@ -19,7 +19,7 @@
       required: true
       default: 2048 
       type: "string"
-    - variable: "seed_scale"
+	- variable: "seed_scale"
       description: "Number of cassandra seed nodes"
       label: "Cassandra Seed Nodes:"
       required: true
@@ -49,7 +49,7 @@
       required: true
       default: 400M
       type: "string"
-    - variable: "hz_scale"
+	- variable: "hz_scale"
       description: "Number of Hazelcast loader nodes(excluding mancenter node)"
       label: "Hz Loader Nodes(excluding mancenter):"
       required: true
@@ -81,12 +81,12 @@
       type: "string"
     - variable: "Cassandra_link"
       description: |
-        Choose the Cassandra service to use. 
-      label: "Casandra stack/service"
-      default: "cass/cass"
+        Choose the Cassandra string to use. 
+      label: "Casandra stack/string"
+      default: "Cassandra/cass"
       required: true
-      type: "service"
-    - variable: "kafka_scale"
+      type: "string"
+	- variable: "kafka_scale"
       description: "Number of brokers nodes. Note: Recommended an odd number"
       label: "Broker Nodes:"
       required: true
@@ -128,7 +128,7 @@
       required: false
       default: false 
       type: "boolean"
-    - variable: "ncm_scale"
+	- variable: "ncm_scale"
       description: "Number of Cluster Manager nodes"
       label: "ncm Nodes:"
       required: true
@@ -142,13 +142,13 @@
       type: "int"
     - variable: "zk_link"
       description: |
-        Choose the Zookeeper service to use. 
-        It's really recommended a dedicated zookeeper service just for Nifi.
-      label: "Zookeeper stack/service"
-      default: "zookeeper/zk"
+        Choose the Zookeeper string to use. 
+        It's really recommended a dedicated zookeeper string just for Nifi.
+      label: "Zookeeper stack/string"
+      default: "zk/zk"
       required: true
-      type: "service"
-    - variable: "nimbus_scale"
+      type: "string"
+	- variable: "nimbus_scale"
       description: "Number of Nimbus nodes"
       label: "nimbus Nodes:"
       required: true
@@ -168,50 +168,48 @@
       type: "int"
     - variable: "HazelcastETL_link"
       description: |
-        Choose the Hazelcast service to use. 
-      label: "HazelcastETL stack/service"
-      default: "HazelcastETL/Loader-ETL"
+        Choose the Hazelcast string to use. 
+      label: "HazelcastETL stack/string"
+      default: "HazelETL/ETL"
       required: true
-      type: "service"
+      type: "string"
     - variable: "HazelcastNONETL_link"
       description: |
-        Choose the Hazelcast service to use. 
-      label: "HazelcastNONETL stack/service"
-      default: "HazelcastNONETL/Loader-NONETL"
+        Choose the Hazelcast string to use. 
+      label: "HazelcastNONETL stack/string"
+      default: "HazelcastNONETL/NONETL"
       required: true
-      type: "service"
+      type: "string"
     - variable: "Kafka_link"
       description: |
-        Choose the Kafka service to use. 
-      label: "Kafka stack/service"
-      default: "kafka/broker"
+        Choose the Kafka string to use. 
+      label: "Kafka stack/string"
+      default: "Kafka/broker"
       required: true
-      type: "service"
-    - variable: "RabbitMq_link"
+      type: "string"
+	- variable: "RabbitMq_link"
       description: |
-        Choose the RabbitMq service to use. 
-      label: "RabbitMq stack/service"
-      default: "rabbit1"
+        Choose the RabbitMq string to use. 
+      label: "RabbitMq stack/string"
+      default: "Rabbitmq/rabbit"
       required: true
-      type: "service"
+      type: "string"
     - variable: "Nifi_link"
       description: |
-        Choose the Apache Nifi service to use. 
-      label: "Nifi stack/service"
-      default: "worker"
+        Choose the Apache Nifi string to use. 
+      label: "Nifi stack/string"
+      default: "Nifi/worker"
       required: true
-      type: "service"
+      type: "string"
 zk:
  scale: ${zk_scale}
-Seed:
+Cassandra-Seed:
   scale: ${seed_scale}
   retain_ip: true
-Peer:
+Cassandra-Peer:
   scale: ${cassandra_scale}
-  retain_ip: true   
-Hazelcast-Loader:
- scale: ${hz_scale}    
-broker:
+  retain_ip: true     
+Kafka-broker:
   scale: ${kafka_scale}
   retain_ip: true
   health_check:
@@ -221,14 +219,13 @@ broker:
     request_line: ''
     healthy_threshold: 2
     response_timeout: 5000   
-ncm:
+Nifi-ncm:
  scale: ${ncm_scale}
-worker:
+Nifi-worker:
  scale: ${worker_scale}   
-nimbus:
+Storm-nimbus:
  scale: ${nimbus_scale}
-supervisor:
+Storm-supervisor:
  scale: ${supervisor_scale}
-ui:
+Storm-ui:
  scale: ${ui_scale}
-
