@@ -20,6 +20,7 @@ Cassandra-Seed:
   volumes:
    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
    - /usr/local/aeris_lib/cassandra/:/usr/local/aeris_lib/cassandra
+   - /usr/local/aeris_lib/compaction/:/usr/local/aeris_lib/compaction
   environment:
     RANCHER_ENABLE: 'true'
     CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
