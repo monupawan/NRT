@@ -19,7 +19,7 @@
       required: true
       default: 2048 
       type: "string"
-	- variable: "seed_scale"
+    - variable: "seed_scale"
       description: "Number of cassandra seed nodes"
       label: "Cassandra Seed Nodes:"
       required: true
@@ -49,7 +49,7 @@
       required: true
       default: 400M
       type: "string"
-	- variable: "hz_scale"
+    - variable: "hz_scale"
       description: "Number of Hazelcast loader nodes(excluding mancenter node)"
       label: "Hz Loader Nodes(excluding mancenter):"
       required: true
@@ -86,7 +86,7 @@
       default: "Cassandra/cass"
       required: true
       type: "string"
-	- variable: "kafka_scale"
+    - variable: "kafka_scale"
       description: "Number of brokers nodes. Note: Recommended an odd number"
       label: "Broker Nodes:"
       required: true
@@ -128,7 +128,7 @@
       required: false
       default: false 
       type: "boolean"
-	- variable: "ncm_scale"
+    - variable: "ncm_scale"
       description: "Number of Cluster Manager nodes"
       label: "ncm Nodes:"
       required: true
@@ -148,7 +148,7 @@
       default: "zk/zk"
       required: true
       type: "string"
-	- variable: "nimbus_scale"
+    - variable: "nimbus_scale"
       description: "Number of Nimbus nodes"
       label: "nimbus Nodes:"
       required: true
@@ -187,7 +187,7 @@
       default: "Kafka/broker"
       required: true
       type: "string"
-	- variable: "RabbitMq_link"
+    - variable: "RabbitMq_link"
       description: |
         Choose the RabbitMq string to use. 
       label: "RabbitMq stack/string"
