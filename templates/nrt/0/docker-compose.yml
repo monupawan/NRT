@@ -200,8 +200,6 @@ Kafka-broker:
     - KAFKA_LOG_RETENTION_HOURS=${kafka_log_retention}
     - KAFKA_NUM_PARTITIONS=${kafka_num_partitions}
     - ADVERTISE_PUB_IP=${kafka_pub_ip}
-  external_links:
-    - ${zk_link}
   labels: 
     io.rancher.container.dns: true
     io.rancher.sidekicks: broker-volume, broker-conf
@@ -238,8 +236,6 @@ Nifi-ncm:
     - NIFI_UI_BANNER_TEXT=Cluster-Manager
     - NIFI_INSTANCE_ROLE=cluster-manager
     - ZK_SERVICE=${zk_link}
-   external_links:
-    - ${zk_link}
    labels: 
     io.rancher.container.dns: true
    volumes:
@@ -255,8 +251,6 @@ Nifi-worker:
     - NIFI_UI_BANNER_TEXT=Cluster-Node
     - NIFI_INSTANCE_ROLE=cluster-node
     - ZK_SERVICE=${zk_link}
-   external_links:
-    - ${zk_link}
    labels: 
     io.rancher.container.dns: true
     io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
@@ -287,12 +281,6 @@ Storm-nimbus:
     - "49772:3772"
     - "49627:6627"
     - "22"
-  external_links:
-    - ${zk_link}
-    - ${HazelcastETL_link}
-    - ${HazelcastNONETL_link}
-    - ${Kafka_link}
-    - ${RabbitMq_link}
   environment:
     - ZK_SERVICE=${zk_link}
     - HazelcastETL_SERVICE=${HazelcastETL_link}
@@ -330,8 +318,6 @@ Storm-ui:
     - "22"
   links: 
     - Storm-nimbus:Storm-nimbus
-  external_links:
-    - ${zk_link}
   volumes:
    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
   labels: 
