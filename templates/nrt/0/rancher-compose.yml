@@ -5,7 +5,6 @@
     NRT Stack With All Components.
   minimum_rancher_version: v0.56.0
   maintainer: "Pawan Kumar <monu.pawan@gmail.com>"
-  uuid: zk-0
   questions:
     - variable: "zk_scale"
       description: "Number of zk nodes. Note: Recommended an odd number"
