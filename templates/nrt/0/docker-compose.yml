@@ -49,12 +49,12 @@ Cassandra-Peer:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/cassandra-1.1.6:2
   command: bash /usr/local/cassandra/apache-cassandra-1.1.6/bin/start-cass-service.sh peer Cassandra-Seed ${seed_scale} ${cassandra_scale}
   links: 
-   - Seed:Seed
+   - Cassandra-Seed:Cassandra-Seed
 HazelETL-Mancenter-Loader:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
   links: 
-   - Seed:Seed
-   - Peer:Peer
+   - Cassandra-Seed:Cassandra-Seed
+   - Cassandra-Peer:Cassandra-Peer
   labels:
    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
   restart: always
@@ -100,8 +100,8 @@ HazelETL-Loader:
 HazelNONETL-Mancenter-Loader:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
   links: 
-   - Seed:Seed
-   - Peer:Peer
+   - Cassandra-Seed:Cassandra-Seed
+   - Cassandra-Peer:Cassandra-Peer
   labels:
    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
   restart: always
@@ -315,7 +315,7 @@ Storm-supervisor:
     - "8000"
     - "22"
   links: 
-    - nimbus:nimbus
+    - Storm-nimbus:Storm-nimbus
   volumes:
    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
 Storm-ui:
@@ -329,7 +329,7 @@ Storm-ui:
     - "49080:8080"
     - "22"
   links: 
-    - nimbus:nimbus
+    - Storm-nimbus:Storm-nimbus
   external_links:
     - ${zk_link}
   volumes:
@@ -342,7 +342,7 @@ Emitter:
     io.rancher.container.hostname_override: container_name
   links: 
    - Rabbitmq-rabbit1:Rabbitmq-rabbit1
-   - worker:worker
+   - Nifi-worker:Nifi-worker
   command: bash /startup.sh
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/emitter:5
   volumes:
