@@ -70,7 +70,7 @@ HazelETL-Mancenter-Loader:
   - INITOCFRACTION=${hz_init_frac}
   - MAXHEAPFREERATIO=${hz_max_heap_free}
   - MINHEAPFREERATIO=${hz_min_heap_free}
-  - CLUSTER_TYPE="ETL"
+  - CLUSTER_TYPE=ETL
   - Cassandra_SERVICE=${Cassandra_link}
 HazelETL-Loader:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
@@ -95,7 +95,7 @@ HazelETL-Loader:
   - INITOCFRACTION=${hz_init_frac}
   - MAXHEAPFREERATIO=${hz_max_heap_free}
   - MINHEAPFREERATIO=${hz_min_heap_free}
-  - CLUSTER_TYPE="ETL"
+  - CLUSTER_TYPE=ETL
   - Cassandra_SERVICE=${Cassandra_link}
 HazelNONETL-Mancenter-Loader:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
@@ -117,7 +117,7 @@ HazelNONETL-Mancenter-Loader:
   - INITOCFRACTION=${hz_init_frac}
   - MAXHEAPFREERATIO=${hz_max_heap_free}
   - MINHEAPFREERATIO=${hz_min_heap_free}
-  - CLUSTER_TYPE="NONETL"
+  - CLUSTER_TYPE=NONETL
   - Cassandra_SERVICE=${Cassandra_link}
 HazelNONETL-Loader:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
@@ -142,7 +142,7 @@ HazelNONETL-Loader:
   - INITOCFRACTION=${hz_init_frac}
   - MAXHEAPFREERATIO=${hz_max_heap_free}
   - MINHEAPFREERATIO=${hz_min_heap_free}
-  - CLUSTER_TYPE="NONETL"
+  - CLUSTER_TYPE=NONETL
   - Cassandra_SERVICE=${Cassandra_link}
 Rabbitmq-rabbit1:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/rmq:2
@@ -202,11 +202,11 @@ Kafka-broker:
     - ADVERTISE_PUB_IP=${kafka_pub_ip}
   labels: 
     io.rancher.container.dns: true
-    io.rancher.sidekicks: broker-volume, broker-conf
+    io.rancher.sidekicks: Kafka-broker-volume, Kafka-broker-conf
     io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
   volumes:
    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
-kafka-broker-conf:
+Kafka-broker-conf:
   net: none
   labels:
     io.rancher.container.start_once: true
