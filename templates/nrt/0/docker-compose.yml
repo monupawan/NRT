@@ -298,7 +298,7 @@ Storm-supervisor:
     io.rancher.container.dns: true
   restart: always
   command: mkdir -p /var/run/sshd
-  command: bash /usr/bin/start-supervisor.sh nimbus
+  command: bash /usr/bin/start-supervisor.sh Storm-nimbus
   environment:
     - ZK_SERVICE=${zk_link}
   ports:
@@ -313,7 +313,7 @@ Storm-ui:
   environment:
     - ZK_SERVICE=${zk_link}
   command: mkdir -p /var/run/sshd
-  command: bash /usr/bin/start-supervisor.sh nimbus
+  command: bash /usr/bin/start-supervisor.sh Storm-nimbus
   restart: always
   ports:
     - "49080:8080"
