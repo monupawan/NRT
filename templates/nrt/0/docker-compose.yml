@@ -294,7 +294,7 @@ Storm-nimbus:
     - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
     - /usr/local/aeris_lib/storm/:/usr/local/aeris_lib/storm
 Storm-supervisor:
-  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/storm:supervisor1
+  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/storm:supervisor2
   labels: 
     io.rancher.container.dns: true
   restart: always
