@@ -309,6 +309,7 @@ Storm-supervisor:
     - Storm-nimbus:Storm-nimbus
   volumes:
    - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
+   - /usr/local/aeris_lib/storm/:/usr/local/aeris_lib/storm
 Storm-ui:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/storm:ui1
   environment:
