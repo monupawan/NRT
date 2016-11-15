@@ -163,26 +163,6 @@ Rabbitmq-rabbit1:
   ports:
    - "5672:5672"
    - "15672:15672"
-Rabbitmq-rabbit2:
-  image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/rmq:2
-  hostname: rabbit2
-  restart: always
-  labels: 
-    io.rancher.container.dns: true
-    io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
-    io.rancher.container.hostname_override: container_name
-  links:
-   - Rabbitmq-rabbit1
-   - HazelNONETL-Mancenter-Loader:HazelNONETL-Mancenter-Loader
-   - HazelETL-Mancenter-Loader:HazelETL-Mancenter-Loader
-   - HazelETL-Loader:HazelETL-Loader
-   - HazelNONETL-Loader:HazelNONETL-Loader
-  environment:
-   - ERLANG_COOKIE=abcdefg
-   - CLUSTER_WITH=Rabbitmq-rabbit1
-  ports:
-   - "5673:5672"
-   - "15673:15672"
 Kafka-broker:
   tty: true
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/kafka:10.0.0
