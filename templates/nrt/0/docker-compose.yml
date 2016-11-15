@@ -164,7 +164,6 @@ Rabbitmq-rabbit1:
    - "5672:5672"
    - "15672:15672"
 Kafka-broker:
-  tty: true
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/kafka:10.0.0
   command: bash /usr/local/kafka/bin/kafka-service.sh start
   links:
