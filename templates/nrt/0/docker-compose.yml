@@ -323,5 +323,3 @@ Emitter:
   environment:
    - RabbitMq_SERVICE=${RabbitMq_link}
    - Nifi_SERVICE=${Nifi_link}
-Contact GitHub API Training Shop Blog About
-© 2016 GitHub, Inc. Terms Privacy Security Status Help
