@@ -52,9 +52,9 @@
       description: |
         Choose the Cassandra string to use. 
       label: "Casandra stack/string"
-      default: "Cassandra/cass"
+      default: "cass/cass"
       required: true
-      type: "string"
+      type: "service"
     - variable: "kafka_scale"
       description: "Number of Kafka brokers nodes. Note: Recommended an odd number"
       label: "Broker Nodes:"
