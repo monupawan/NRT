@@ -171,8 +171,8 @@ Kafka-broker:
    - zk:zk
   restart: always
   volumes_from:
-    - kafka-broker-volume
-    - kafka-broker-conf
+    - Kafka-broker-volume
+    - Kafka-broker-conf
   environment:
     - JVMFLAGS=-Xmx${kafka_mem}m -Xms${kafka_mem}m
     - CONFD_INTERVAL=${kafka_interval}
