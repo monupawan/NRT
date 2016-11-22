@@ -10,8 +10,8 @@ zk:
 HazelETL-Mancenter-Loader:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
   links: 
-   - Cassandra-Seed:Cassandra-Seed
-   - Cassandra-Peer:Cassandra-Peer
+   - Seed:Seed
+   - Peer:Peer
   labels:
    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
   restart: always
@@ -41,8 +41,8 @@ HazelETL-Loader:
   command: bash /usr/local/tomcat/bin/start-loader.sh "HazelETL-Mancenter-Loader" "HazelETL-Loader" ${hz_scale}
   links: 
    - HazelETL-Mancenter-Loader:HazelETL-Mancenter-Loader
-   - Cassandra-Seed:Cassandra-Seed
-   - Cassandra-Peer:Cassandra-Peer
+   - Seed:Seed
+   - Peer:Peer
   labels: 
     io.rancher.container.dns: true
     io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
@@ -57,8 +57,8 @@ HazelETL-Loader:
 HazelNONETL-Mancenter-Loader:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/hazelcast:3
   links: 
-   - Cassandra-Seed:Cassandra-Seed
-   - Cassandra-Peer:Cassandra-Peer
+   - Seed:Seed
+   - Peer:Peer
   labels:
    io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
   restart: always
@@ -88,8 +88,8 @@ HazelNONETL-Loader:
   command: bash /usr/local/tomcat/bin/start-loader.sh "HazelNONETL-Mancenter-Loader" "HazelNONETL-Loader" ${hz_scale}
   links: 
    - HazelNONETL-Mancenter-Loader:HazelNONETL-Mancenter-Loader
-   - Cassandra-Seed:Cassandra-Seed
-   - Cassandra-Peer:Cassandra-Peer
+   - Seed:Seed
+   - Peer:Peer
   labels: 
     io.rancher.container.dns: true
     io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
