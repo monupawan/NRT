@@ -207,7 +207,7 @@ Kafka-broker-volume:
   volume_driver: local
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/kafka:0.0.1-1
 Nifi-ncm:
-   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.0.1
+   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.1.0
    command: bash /usr/local/nifi-1.0.0/bin/run.sh ncm
    links:
    - zk:zk
@@ -223,7 +223,7 @@ Nifi-ncm:
     - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
     - /usr/local/nifi-1.0.0/logs/:/usr/local/nifi-1.0.0/logs
 Nifi-worker:
-   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.0.1
+   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.1.0
    command: bash /usr/local/nifi-1.0.0/bin/run.sh ncm
    links:
    - zk:zk
