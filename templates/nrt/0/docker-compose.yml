@@ -168,7 +168,7 @@ Kafka-broker:
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/kafka:10.0.0
   command: bash /usr/local/kafka/bin/kafka-service.sh start
   ports:
-   - 9042:9042
+   - 9092:9092
   links:
    - zk:zk
   restart: always
