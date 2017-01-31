@@ -209,12 +209,13 @@ Kafka-broker-volume:
   volume_driver: local
   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/kafka:0.0.1-1
 Nifi-ncm:
-   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.1.0
+   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.1.11
    command: bash /usr/local/nifi-1.1.0/bin/run.sh ncm
    links:
    - zk:zk
    ports:
      - 9080:8080
+     - 8084:8084
    environment:
     - NIFI_UI_BANNER_TEXT=Cluster-Manager
     - NIFI_INSTANCE_ROLE=cluster-manager
@@ -225,13 +226,14 @@ Nifi-ncm:
     - /usr/local/aeris_lib/resources/:/usr/local/aeris_lib/resources
     - /usr/local/nifi-1.1.0/logs/:/usr/local/nifi-1.1.0/logs
 Nifi-worker:
-   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.1.0
+   image: 035824440926.dkr.ecr.us-east-1.amazonaws.com/nrt/nifi:1.1.11
    command: bash /usr/local/nifi-1.1.0/bin/run.sh ncm
    links:
    - zk:zk
    - Nifi-ncm:Nifi-ncm
    ports:
-    - 9081:8081
+    - 9080:9080
+    - 8084:8084
    environment:
     - NIFI_UI_BANNER_TEXT=Cluster-Node
     - NIFI_INSTANCE_ROLE=cluster-node
