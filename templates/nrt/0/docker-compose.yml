@@ -260,7 +260,6 @@ Storm-nimbus:
    - HazelNONETL-Loader:HazelNONETL-Loader
    - Kafka-broker:Kafka-broker
    - Rabbitmq-rabbit1:Rabbitmq-rabbit1
-   - Rabbitmq-rabbit2:Rabbitmq-rabbit2
   restart: always
   labels: 
     io.rancher.container.dns: true
@@ -317,7 +316,6 @@ Emitter:
     io.rancher.container.hostname_override: container_name
   links: 
    - Rabbitmq-rabbit1:Rabbitmq-rabbit1
-   - Rabbitmq-rabbit2:Rabbitmq-rabbit2
    - Nifi-worker:Nifi-worker
    - Nifi-ncm:Nifi-ncm
   command: bash /startup.sh
